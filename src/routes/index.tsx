@@ -42,7 +42,7 @@ const categoryIcons: Record<string, typeof ShieldCheck> = {
 function HomePage() {
   const navigate = useNavigate();
   const [query, setQuery] = useState("");
-  const [previewTab, setPreviewTab] = useState("website");
+  const [previewTab, setPreviewTab] = useState("video");
   const [autoRotate, setAutoRotate] = useState(true);
   const scrollRef = useRef<HTMLDivElement | null>(null);
 

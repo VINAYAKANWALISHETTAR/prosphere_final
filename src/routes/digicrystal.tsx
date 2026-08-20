@@ -770,12 +770,6 @@ function DigiCrystalPage() {
                   category: "Skin Care",
                   src: "/assets/skin_videos/8.mp4",
                 },
-                {
-                  id: "extra-9",
-                  title: "Skin Care Video 9",
-                  category: "Skin Care",
-                  src: "/assets/skin_videos/9.mp4",
-                },
               ];
               if (dbExtraItems.length === 0) return defaultItems;
               const existingSrcs = new Set(dbExtraItems.map((item) => item.src));
