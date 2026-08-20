@@ -38,3 +38,7 @@ dist-ssr
 
 # Qodo
 .qodo/
+
+# Large media files (>50MB) - use Git LFS or external storage instead
+public/assets/Prosphere_ADS/MM Introduction Creative Clip.mp4
+src/assets/Prosphere_ADS/MM Introduction Creative Clip.mp4
