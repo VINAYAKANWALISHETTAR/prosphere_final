@@ -1,0 +1,285 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+/*
+ * ProSphere + DigiCrystal dark-only design system.
+ * Background: #0A0A0A
+ * Cards: #181818
+ * Text: #FFFFFF
+ * Accents: Blue #1769E0 / Pink #E83E8C
+ */
+
+@theme inline {
+  --radius-sm: 2px;
+  --radius-md: 3px;
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 2px);
+  --radius-2xl: calc(var(--radius) + 4px);
+  --radius-3xl: calc(var(--radius) + 4px);
+  --font-sans: "Inter", "Segoe UI", sans-serif;
+  --font-display: "Inter", "Segoe UI", sans-serif;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-ring-offset-background: var(--background);
+  --color-navy: var(--navy);
+  --color-navy-foreground: var(--navy-foreground);
+  --color-navy-muted: var(--navy-muted);
+  --color-violet: var(--violet);
+  --color-violet-foreground: var(--violet-foreground);
+  --color-copper: var(--copper);
+  --color-copper-foreground: var(--copper-foreground);
+  --color-obsidian: var(--obsidian);
+  --color-obsidian-foreground: var(--obsidian-foreground);
+  --color-obsidian-muted: var(--obsidian-muted);
+  --color-obsidian-border: var(--obsidian-border);
+  --color-lime: var(--violet);
+  --color-text-primary: var(--text-primary);
+  --color-text-body: var(--text-body);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+  --color-surface: var(--surface);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 8%);
+  --shadow-lift: 0 4px 12px rgb(0 0 0 / 10%);
+  /* Legacy utilities mapped to the dark-only system. */
+  --color-slate-50: var(--background);
+  --color-slate-100: var(--surface);
+  --color-slate-200: var(--border);
+  --color-slate-300: var(--border);
+  --color-slate-500: var(--text-muted);
+  --color-slate-600: var(--text-muted);
+  --color-slate-700: var(--text-primary);
+  --color-slate-800: var(--text-primary);
+  --color-slate-900: var(--text-primary);
+  --color-slate-950: var(--navy);
+  --color-sky-100: color-mix(in srgb, var(--primary) 10%, var(--background));
+  --color-sky-200: color-mix(in srgb, var(--primary) 25%, var(--background));
+  --color-sky-300: color-mix(in srgb, var(--primary) 55%, var(--background));
+  --color-sky-400: var(--primary);
+  --color-sky-600: var(--primary);
+  --color-sky-700: var(--primary);
+  --color-blue-100: color-mix(in srgb, var(--primary) 10%, var(--background));
+  --color-blue-300: color-mix(in srgb, var(--primary) 55%, var(--background));
+  --color-blue-600: var(--primary);
+  --color-blue-700: var(--primary);
+  --color-blue-900: var(--text-primary);
+}
+
+:root {
+  --radius: 0.25rem;
+  --background: #0a0a0a;
+  --surface: #111111;
+  --foreground: #ffffff;
+  --card: #181818;
+  --card-foreground: #ffffff;
+  --popover: #181818;
+  --popover-foreground: #ffffff;
+  --primary: #1769e0;
+  --primary-foreground: #ffffff;
+  --secondary: #111111;
+  --secondary-foreground: #ffffff;
+  --muted: #111111;
+  --muted-foreground: #92928d;
+  --accent: #0a0a0a;
+  --accent-foreground: #ffffff;
+  --destructive: #d94a4a;
+  --destructive-foreground: #ffffff;
+  --border: #363636;
+  --input: #363636;
+  --ring: #1769e0;
+  --navy: #0a0a0a;
+  --navy-foreground: #ffffff;
+  --navy-muted: #92928d;
+  --violet: #e83e8c;
+  --violet-foreground: #ffffff;
+  --success: #4ccb91;
+  --warning: #d9a62e;
+  --danger: #d94a4a;
+  --chart-1: #1769e0;
+  --chart-2: #e83e8c;
+  --chart-3: #4ccb91;
+  --chart-4: #d9a62e;
+  --chart-5: #d94a4a;
+  --sidebar: #181818;
+  --sidebar-foreground: #ffffff;
+  --sidebar-primary: #1769e0;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #0a0a0a;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #363636;
+  --sidebar-ring: #1769e0;
+  --copper: #1769e0;
+  --copper-foreground: #ffffff;
+  --obsidian: #181818;
+  --obsidian-foreground: #ffffff;
+  --obsidian-muted: #92928d;
+  --obsidian-border: #363636;
+  --text-primary: #ffffff;
+  --text-body: #c7c7c3;
+  --text-secondary: #c7c7c3;
+  --text-muted: #92928d;
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 5rem;
+    color-scheme: dark;
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    transition: none;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+}
+
+/* Dark-mode surfaces for embedded previews. */
+.bg-white {
+  background-color: var(--color-card) !important;
+  color: var(--color-card-foreground) !important;
+}
+
+[class*="rounded-\["] {
+  border-radius: 0.5rem !important;
+}
+
+[class*="bg-[linear-gradient"],
+[class*="bg-[radial-gradient"] {
+  background-color: var(--color-card) !important;
+  background-image: none !important;
+}
+
+/* Site-wide technical backdrop. */
+@utility site-grid {
+  background-image:
+    linear-gradient(
+      to right,
+      color-mix(in oklab, var(--color-foreground) 6%, transparent) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      to bottom,
+      color-mix(in oklab, var(--color-foreground) 6%, transparent) 1px,
+      transparent 1px
+    );
+  background-size: 48px 48px;
+}
+
+@utility surface-band {
+  background-color: var(--color-surface);
+}
+
+@utility navy-panel {
+  background-color: var(--color-navy);
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-navy-foreground);
+}
+
+@utility grid-backdrop {
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(to right, oklch(1 0 0 / 0.05) 1px, transparent 1px),
+      linear-gradient(to bottom, oklch(1 0 0 / 0.05) 1px, transparent 1px);
+    background-size: 56px 56px;
+    mask-image: radial-gradient(70% 60% at 50% 40%, black, transparent);
+  }
+}
+
+@utility reveal {
+  opacity: 0;
+  transform: translateY(16px);
+  transition:
+    opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+
+  &[data-visible="true"] {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@keyframes marquee-up {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(0, -50%, 0);
+  }
+}
+
+@utility marquee-track {
+  animation-name: marquee-up;
+  animation-duration: 15s !important;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  will-change: transform;
+}
+
+.marquee-viewport:hover .marquee-track {
+  animation-duration: 800s !important;
+}
