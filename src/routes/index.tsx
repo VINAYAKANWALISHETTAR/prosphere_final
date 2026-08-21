@@ -10,6 +10,7 @@ import { SecurityAssessmentWidget } from "@/components/site/SecurityAssessmentWi
 import { DigiCrystalPreview } from "@/components/site/DigiCrystalPreviews";
 import { DigiCrystalCarousel } from "@/components/site/DigiCrystalCarousel";
 import { ProsphereAdCard, prosphereAdVideos } from "@/components/site/ProsphereAdVideoCard";
+import { SkinVideoCard, skinVideos } from "@/components/site/SkinVideoCard";
 import { ServiceVisual } from "@/components/site/ServiceVisuals";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -498,71 +499,8 @@ function HomePage() {
                         {prosphereAdVideos.map((video) => (
                           <ProsphereAdCard key={video.video} video={video} />
                         ))}
-                        {[
-                          {
-                            title: "Skin 1",
-                            src: "/assets/skin_videos/1.mp4",
-                            preview: "/assets/skin_videos/1_t.jpeg",
-                          },
-                          {
-                            title: "Skin 2",
-                            src: "/assets/skin_videos/2.mp4",
-                            preview: "/assets/skin_videos/2_t.jpeg",
-                          },
-                          {
-                            title: "Skin 3",
-                            src: "/assets/skin_videos/3.mp4",
-                            preview: "/assets/skin_videos/3_t.jpeg",
-                          },
-                          {
-                            title: "Skin 4",
-                            src: "/assets/skin_videos/4.mp4",
-                            preview: "/assets/skin_videos/4_t.jpeg",
-                          },
-                          {
-                            title: "Skin 5",
-                            src: "/assets/skin_videos/5.mp4",
-                            preview: "/assets/skin_videos/5_t.jpeg",
-                          },
-                          {
-                            title: "Skin 6",
-                            src: "/assets/skin_videos/6.mp4",
-                            preview: "/assets/skin_videos/6_t.jpeg",
-                          },
-                          {
-                            title: "Skin 7",
-                            src: "/assets/skin_videos/7.mp4",
-                            preview: "/assets/skin_videos/7_t.jpeg",
-                          },
-                          {
-                            title: "Skin 8",
-                            src: "/assets/skin_videos/8.mp4",
-                            preview: "/assets/skin_videos/8_t.jpeg",
-                          },
-                          {
-                            title: "Skin Image",
-                            src: "/assets/skin_videos/skin_image.webp",
-                            preview: "/assets/skin_videos/skin_image.webp",
-                          },
-                        ].map((video) => (
-                          <div
-                            key={video.src}
-                            className="relative aspect-video rounded-lg overflow-hidden bg-[#111111] border border-[#E5E7EB]"
-                          >
-                            <video
-                              className="h-full w-full object-cover"
-                              preload="metadata"
-                              muted
-                              loop
-                              playsInline
-                              poster={video.preview}
-                            >
-                              <source src={video.src} type="video/mp4" />
-                            </video>
-                            <span className="absolute bottom-1 left-1 rounded bg-black/60 px-1.5 py-0.5 text-[9px] font-medium text-white">
-                              {video.title}
-                            </span>
-                          </div>
+                        {skinVideos.map((video) => (
+                          <SkinVideoCard key={video.src} video={video} />
                         ))}
                       </div>
                     </div>

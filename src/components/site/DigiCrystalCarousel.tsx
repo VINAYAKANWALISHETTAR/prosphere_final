@@ -1,5 +1,4 @@
 import { useRef, useState, useEffect, type ReactNode } from "react";
-import { Link } from "@tanstack/react-router";
 import { ChevronLeft, ChevronRight, Volume2, VolumeX, Play, Pause } from "lucide-react";
 
 import adSecurity from "@/assets/ad-security.jpg";
@@ -104,21 +103,12 @@ export function DigiCrystalCarousel() {
   const trackRef = useRef<HTMLDivElement | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [mutedStates, setMutedStates] = useState<Record<string, boolean>>({});
-  const [isHovering, setIsHovering] = useState(false);
   const [failedSlides, setFailedSlides] = useState<Set<string>>(new Set());
   const [openVideoId, setOpenVideoId] = useState<string | null>(null);
   const [playingStates, setPlayingStates] = useState<Record<string, boolean>>({});
 
   const visibleCount = 3;
   const maxIndex = Math.max(0, slides.length - visibleCount);
-
-  useEffect(() => {
-    if (isHovering) return;
-    const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev >= maxIndex ? 0 : prev + 1));
-    }, 3000);
-    return () => clearInterval(interval);
-  }, [isHovering, maxIndex]);
 
   const scrollToIndex = (index: number) => {
     const track = trackRef.current;
@@ -175,11 +165,7 @@ export function DigiCrystalCarousel() {
   }, [openVideoId]);
 
   return (
-    <div
-      className="relative"
-      onMouseEnter={() => setIsHovering(true)}
-      onMouseLeave={() => setIsHovering(false)}
-    >
+    <div className="relative">
       <div className="flex items-center justify-end gap-2">
         <button
           type="button"
@@ -227,7 +213,7 @@ export function DigiCrystalCarousel() {
                       muted={mutedStates[item.id] ?? true}
                       loop={false}
                       playsInline
-                      autoPlay
+                      autoPlay={false}
                       controls={false}
                       onContextMenu={(e) => e.preventDefault()}
                       onEnded={() => setPlayingStates((prev) => ({ ...prev, [item.id]: false }))}
@@ -248,9 +234,9 @@ export function DigiCrystalCarousel() {
                           if (video.paused) {
                             video
                               .play()
-                              .then(() =>
-                                setPlayingStates((prev) => ({ ...prev, [item.id]: true })),
-                              )
+                              .then(() => {
+                                setPlayingStates((prev) => ({ ...prev, [item.id]: true }));
+                              })
                               .catch(() => {});
                           } else {
                             video.pause();
@@ -288,9 +274,8 @@ export function DigiCrystalCarousel() {
 
             if (hasPreview) {
               return (
-                <Link
+                <div
                   key={item.id}
-                  to="/digicrystal"
                   className="group relative block w-[280px] shrink-0 overflow-hidden rounded-2xl border border-[#363636] bg-[#181818] shadow-card transition-all duration-300 hover:-translate-y-1 hover:border-[#E83E8C] hover:shadow-[0_18px_40px_rgba(232,62,140,0.16)]"
                   style={{ scrollSnapAlign: "start" }}
                 >
@@ -315,80 +300,18 @@ export function DigiCrystalCarousel() {
                       </button>
                     </div>
                   </div>
-                </Link>
+                </div>
               );
             }
 
             return (
-              <Link
+              <div
                 key={item.id}
-                to="/digicrystal"
-                className="group relative block w-[280px] shrink-0 overflow-hidden rounded-2xl border border-[#363636] bg-[#181818] shadow-card transition-all duration-300 hover:-translate-y-1 hover:border-[#E83E8C] hover:shadow-[0_18px_40px_rgba(232,62,140,0.16)]"
-                style={{ scrollSnapAlign: "start" }}
+                className="flex w-[280px] shrink-0 items-center justify-center rounded-2xl border border-[#363636] bg-[#181818] shadow-card"
+                style={{ scrollSnapAlign: "start", minHeight: 260 }}
               >
-                <div className="relative h-[200px] overflow-hidden rounded-t-2xl bg-[#0A0A0A]">
-                  {item.type === "video" && !failedSlides.has(item.id) ? (
-                    <video
-                      className="h-full w-full object-cover"
-                      preload="metadata"
-                      muted={mutedStates[item.id] ?? true}
-                      loop
-                      playsInline
-                      onMouseEnter={(e) => {
-                        e.currentTarget.play().catch(() => {});
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.pause();
-                        e.currentTarget.currentTime = 0;
-                      }}
-                      onError={() => handleVideoError(item.id)}
-                    >
-                      <source src={item.src} type="video/mp4" />
-                    </video>
-                  ) : item.type === "image" ? (
-                    <img
-                      src={item.src}
-                      alt={item.title}
-                      className="h-full w-full object-cover"
-                      loading="lazy"
-                    />
-                  ) : (
-                    <div className="flex h-full w-full items-center justify-center text-xs text-[#92928D]">
-                      Preview not available
-                    </div>
-                  )}
-
-                  {item.type === "video" && !failedSlides.has(item.id) && (
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        toggleMuted(item.id);
-                      }}
-                      className="absolute bottom-2 right-2 flex size-8 items-center justify-center rounded-md bg-black/60 text-white backdrop-blur-sm transition-colors hover:bg-black/80"
-                      aria-label={(mutedStates[item.id] ?? true) ? "Unmute" : "Mute"}
-                    >
-                      {(mutedStates[item.id] ?? true) ? (
-                        <VolumeX className="size-4" />
-                      ) : (
-                        <Volume2 className="size-4" />
-                      )}
-                    </button>
-                  )}
-
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                  <div className="absolute inset-x-3 bottom-0 translate-y-2 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
-                    <p
-                      className="text-[10px] font-semibold uppercase tracking-[0.2em]"
-                      style={{ color: item.accent }}
-                    >
-                      {item.category}
-                    </p>
-                    <p className="mt-1 text-sm font-medium text-white">{item.title}</p>
-                  </div>
-                </div>
-              </Link>
+                <p className="text-[10px] text-[#92928D]">Preview not available</p>
+              </div>
             );
           })}
         </div>
