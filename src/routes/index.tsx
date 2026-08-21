@@ -9,6 +9,7 @@ import { Reveal } from "@/components/site/Reveal";
 import { SecurityAssessmentWidget } from "@/components/site/SecurityAssessmentWidget";
 import { DigiCrystalPreview } from "@/components/site/DigiCrystalPreviews";
 import { DigiCrystalCarousel } from "@/components/site/DigiCrystalCarousel";
+import { ProsphereAdCard, prosphereAdVideos } from "@/components/site/ProsphereAdVideoCard";
 import { ServiceVisual } from "@/components/site/ServiceVisuals";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -494,25 +495,10 @@ function HomePage() {
                   >
                     <div className="h-full overflow-y-auto bg-[#F8F9FA] p-3">
                       <div className="grid grid-cols-2 gap-2">
+                        {prosphereAdVideos.map((video) => (
+                          <ProsphereAdCard key={video.video} video={video} />
+                        ))}
                         {[
-                          { title: "ProSphere Ad", src: "/assets/Prosphere_ADS/ads.mp4" },
-                          { title: "Nova Shoes", src: "/assets/Prosphere_ADS/nova_shoes_ads.mp4" },
-                          { title: "Chair Ad", src: "/assets/Prosphere_ADS/chair_ads.mp4" },
-                          { title: "Chair Ad 2", src: "/assets/Prosphere_ADS/chair2_ads.mp4" },
-                          { title: "Coca-Cola", src: "/assets/Prosphere_ADS/cococola_ads.mp4" },
-                          { title: "Ponds", src: "/assets/Prosphere_ADS/ponds_ADS.mp4" },
-                          {
-                            title: "Car Adventures",
-                            src: "/assets/Prosphere_ADS/car_adventures_ads.mp4",
-                          },
-                          {
-                            title: "Creative Intro",
-                            src: "/assets/Prosphere_ADS/MM%20Introduction%20Creative%20Clip.mp4",
-                          },
-                          {
-                            title: "DC Tech Intro",
-                            src: "/assets/Prosphere_ADS/DC%20Technologies%20Introduction.mp4",
-                          },
                           { title: "Skin 1", src: "/assets/skin_videos/1.mp4" },
                           { title: "Skin 2", src: "/assets/skin_videos/2.mp4" },
                           { title: "Skin 3", src: "/assets/skin_videos/3.mp4" },

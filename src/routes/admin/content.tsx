@@ -26,7 +26,7 @@ type ContentItem = {
 
 const SECTIONS = [
   { value: "thumbnails", label: "Thumbnails" },
-  { value: "workflow", label: "Workflow Visuals" },
+  { value: "workflow", label: "Automation" },
   { value: "extra", label: "Extra Videos" },
   { value: "presentations", label: "Presentations" },
 ];

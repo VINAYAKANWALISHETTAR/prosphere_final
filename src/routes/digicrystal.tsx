@@ -52,6 +52,7 @@ const showcaseItems = [
     title: "Promotional Video",
     category: "video",
     src: "/assets/Prosphere_ADS/ads.mp4",
+    preview: "/assets/Prosphere_ADS/ads_t.jpeg",
     type: "video",
     accent: "#E83E8C",
   },
@@ -60,6 +61,7 @@ const showcaseItems = [
     title: "Nova Shoes Advertisement",
     category: "video",
     src: "/assets/Prosphere_ADS/nova_shoes_ads.mp4",
+    preview: "/assets/Prosphere_ADS/nova_shoes_t.jpeg",
     type: "video",
     accent: "#1769E0",
   },
@@ -68,6 +70,7 @@ const showcaseItems = [
     title: "Chair Advertisement",
     category: "video",
     src: "/assets/Prosphere_ADS/chair_ads.mp4",
+    preview: "/assets/Prosphere_ADS/chair_t.jpeg",
     type: "video",
     accent: "#E83E8C",
   },
@@ -76,6 +79,7 @@ const showcaseItems = [
     title: "Chair Advertisement 2",
     category: "video",
     src: "/assets/Prosphere_ADS/chair2_ads.mp4",
+    preview: "/assets/Prosphere_ADS/chair2_t.jpeg",
     type: "video",
     accent: "#1769E0",
   },
@@ -84,6 +88,7 @@ const showcaseItems = [
     title: "Coca-Cola Creative",
     category: "design",
     src: "/assets/Prosphere_ADS/cococola_ads.mp4",
+    preview: "/assets/Prosphere_ADS/cococola_t.mp4.jpeg",
     type: "video",
     accent: "#1769E0",
   },
@@ -92,6 +97,7 @@ const showcaseItems = [
     title: "Ponds Creative",
     category: "design",
     src: "/assets/Prosphere_ADS/ponds_ADS.mp4",
+    preview: "/assets/Prosphere_ADS/ponds_t.jpeg",
     type: "video",
     accent: "#E83E8C",
   },
@@ -100,6 +106,7 @@ const showcaseItems = [
     title: "Car Adventures",
     category: "video",
     src: "/assets/Prosphere_ADS/car_adventures_ads.mp4",
+    preview: "/assets/Prosphere_ADS/car_adventure_t.jpeg",
     type: "video",
     accent: "#1769E0",
   },
@@ -108,6 +115,7 @@ const showcaseItems = [
     title: "Creative Introduction",
     category: "video",
     src: "/assets/Prosphere_ADS/MM%20Introduction%20Creative%20Clip.mp4",
+    preview: "/assets/Prosphere_ADS/MM_introduction_t.jpeg",
     type: "video",
     accent: "#E83E8C",
   },
@@ -116,6 +124,16 @@ const showcaseItems = [
     title: "AI Creative",
     category: "ai",
     src: "/assets/Prosphere_ADS/DC%20Technologies%20Introduction.mp4",
+    preview: "/assets/Prosphere_ADS/Dc_introduction_t.jpeg",
+    type: "video",
+    accent: "#1769E0",
+  },
+  {
+    id: "ai-ugc",
+    title: "AI + UGC Ads for Brands",
+    category: "video",
+    src: "/assets/Prosphere_ADS/AI%20+%20UGC%20Ads%20for%20Brands.mp4",
+    preview: "/assets/Prosphere_ADS/AI%20+%20UGC%20Ads%20for%20Brands_t.jpeg",
     type: "video",
     accent: "#1769E0",
   },
@@ -132,27 +150,19 @@ const showcaseItems = [
 
 function MediaPreview({ item }: { item: (typeof showcaseItems)[number] }) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
   const [isHovered, setIsHovered] = useState(false);
   const [muted, setMuted] = useState(true);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isEnded, setIsEnded] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [videoError, setVideoError] = useState(false);
+  const [isVideoOpen, setIsVideoOpen] = useState(false);
   const imageIntervalRef = useRef<number | null>(null);
 
   useEffect(() => {
     setVideoError(false);
   }, [item.src]);
-
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video || item.type !== "video") return;
-
-    if (isHovered) {
-      video.play().catch(() => {});
-    } else {
-      video.pause();
-      video.currentTime = 0;
-    }
-  }, [isHovered, item.type]);
 
   useEffect(() => {
     if (item.type === "image" && isHovered && item.images && item.images.length > 1) {
@@ -178,6 +188,52 @@ function MediaPreview({ item }: { item: (typeof showcaseItems)[number] }) {
     };
   }, []);
 
+  useEffect(() => {
+    if (!isVideoOpen) return;
+
+    const container = containerRef.current;
+    const video = videoRef.current;
+    if (!container || !video) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) {
+          video.pause();
+          video.muted = true;
+          setIsPlaying(false);
+          setMuted(true);
+        }
+      },
+      { threshold: 0.25 },
+    );
+
+    observer.observe(container);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [isVideoOpen]);
+
+  const togglePlay = () => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    if (isEnded) {
+      video.currentTime = 0;
+      setIsEnded(false);
+    }
+
+    if (video.paused) {
+      video
+        .play()
+        .then(() => setIsPlaying(true))
+        .catch(() => {});
+    } else {
+      video.pause();
+      setIsPlaying(false);
+    }
+  };
+
   const toggleMuted = () => {
     const video = videoRef.current;
     if (!video) return;
@@ -190,8 +246,16 @@ function MediaPreview({ item }: { item: (typeof showcaseItems)[number] }) {
     setVideoError(true);
   };
 
+  const handleEnded = () => {
+    setIsPlaying(false);
+    setIsEnded(true);
+  };
+
+  const isProsphereAdVideo = item.type === "video" && !!item.preview;
+
   return (
     <div
+      ref={containerRef}
       className="flex h-full flex-col rounded-xl border border-[#363636] bg-[#181818] p-4 transition-all duration-200 hover:border-[#0A0A0A]/60"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => {
@@ -212,19 +276,40 @@ function MediaPreview({ item }: { item: (typeof showcaseItems)[number] }) {
         className="mt-3 flex-1 overflow-hidden rounded-lg border border-[#363636] bg-[#0A0A0A]"
         style={{ minHeight: 220 }}
       >
-        {item.type === "video" && !videoError && (
+        {isProsphereAdVideo && !isVideoOpen ? (
+          <div className="relative h-full w-full">
+            <img
+              src={item.preview}
+              alt={item.title}
+              className="h-full w-full object-cover"
+              loading="lazy"
+              decoding="async"
+            />
+            <div className="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-300 hover:opacity-100">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsVideoOpen(true);
+                }}
+                className="rounded-md bg-black/70 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.15em] text-white backdrop-blur-sm transition-colors hover:bg-black/90"
+              >
+                OPEN
+              </button>
+            </div>
+          </div>
+        ) : item.type === "video" && !videoError && !isProsphereAdVideo ? (
           <div className="relative h-full w-full">
             <video
               ref={videoRef}
               className="h-full w-full object-cover"
               preload="metadata"
               muted={muted}
-              loop
+              loop={false}
               playsInline
               onMouseEnter={(e) => e.currentTarget.play().catch(() => {})}
               onMouseLeave={(e) => {
                 e.currentTarget.pause();
-                e.currentTarget.currentTime = 0;
               }}
               onError={handleVideoError}
             >
@@ -242,13 +327,53 @@ function MediaPreview({ item }: { item: (typeof showcaseItems)[number] }) {
               {muted ? <VolumeX className="size-4" /> : <Volume2 className="size-4" />}
             </button>
           </div>
-        )}
-
-        {item.type === "video" && videoError && (
+        ) : item.type === "video" && !videoError && isProsphereAdVideo && isVideoOpen ? (
+          <div className="relative h-full w-full">
+            <video
+              ref={videoRef}
+              className="h-full w-full object-cover"
+              preload="metadata"
+              muted={muted}
+              loop={false}
+              playsInline
+              autoPlay
+              controls={false}
+              onContextMenu={(e) => e.preventDefault()}
+              onEnded={handleEnded}
+              onError={handleVideoError}
+            >
+              <source src={item.src} type="video/mp4" />
+            </video>
+            <div className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-2 bg-gradient-to-t from-black/80 via-black/40 to-transparent px-2 py-2">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  togglePlay();
+                }}
+                className="flex size-8 items-center justify-center rounded-md bg-black/60 text-white backdrop-blur-sm transition-colors hover:bg-black/80"
+                aria-label={isPlaying ? "Pause" : "Play"}
+              >
+                {isPlaying ? <Pause className="size-4" /> : <Play className="size-4" />}
+              </button>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggleMuted();
+                }}
+                className="flex size-8 items-center justify-center rounded-md bg-black/60 text-white backdrop-blur-sm transition-colors hover:bg-black/80"
+                aria-label={muted ? "Unmute" : "Mute"}
+              >
+                {muted ? <VolumeX className="size-4" /> : <Volume2 className="size-4" />}
+              </button>
+            </div>
+          </div>
+        ) : item.type === "video" && videoError ? (
           <div className="flex h-full w-full items-center justify-center">
             <p className="text-[10px] text-[#92928D]">Preview not available</p>
           </div>
-        )}
+        ) : null}
 
         {item.type === "pdf" && (
           <iframe
@@ -590,15 +715,15 @@ function DigiCrystalPage() {
         </div>
       </section>
 
-      {/* Workflow Section */}
+      {/* Automation Section */}
       <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[#1769E0]">
-              Workflow
+              AUTOMATION
             </p>
             <h2 className="mt-2 text-2xl font-bold tracking-tight text-white sm:text-3xl">
-              Workflow Visuals
+              Automation
             </h2>
             <p className="mt-2 text-sm text-[#C7C7C3]">
               Process flows, automation diagrams and workflow designs.
@@ -622,7 +747,7 @@ function DigiCrystalPage() {
               <div className="flex items-center justify-between border-b border-[#363636] px-5 py-3">
                 <h3 className="text-sm font-semibold text-white">{item.title}</h3>
                 <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-[#1769E0]">
-                  Workflow
+                  Automation
                 </span>
               </div>
               <div className="p-4">
