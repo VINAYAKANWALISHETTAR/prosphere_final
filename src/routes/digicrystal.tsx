@@ -600,7 +600,6 @@ function MediaPreview({ item }: { item: (typeof showcaseItems)[number] }) {
 function DigiCrystalPage() {
   const [activeCategory, setActiveCategory] = useState("all");
   const [showExtra, setShowExtra] = useState(false);
-  const [extraMuted, setExtraMuted] = useState<Record<string, boolean>>({});
   const [showWorkflowExtra, setShowWorkflowExtra] = useState(false);
   const [showThumbnailsExtra, setShowThumbnailsExtra] = useState(false);
   const [showCreativeExtra, setShowCreativeExtra] = useState(false);
@@ -614,14 +613,22 @@ function DigiCrystalPage() {
     Array<{ id: string; title: string; src: string }>
   >([]);
   const [contentLoading, setContentLoading] = useState(true);
+  const [openExtraId, setOpenExtraId] = useState<string | null>(null);
+  const [extraPlayingStates, setExtraPlayingStates] = useState<Record<string, boolean>>({});
+  const [extraEndedStates, setExtraEndedStates] = useState<Record<string, boolean>>({});
+  const [extraMutedValues, setExtraMutedValues] = useState<Record<string, boolean>>({});
+  const [extraErrorStates, setExtraErrorStates] = useState<Record<string, boolean>>({});
 
   const filteredItems =
     activeCategory === "all"
       ? showcaseItems
       : showcaseItems.filter((item) => item.category === activeCategory);
 
-  const toggleExtraMuted = (id: string) => {
-    setExtraMuted((prev) => ({ ...prev, [id]: !prev[id] }));
+  const getSkinPreview = (src: string) => {
+    if (src.endsWith(".mp4")) {
+      return src.replace(/\.mp4$/i, "_t.jpeg");
+    }
+    return src;
   };
 
   useEffect(() => {
@@ -1014,109 +1021,241 @@ function DigiCrystalPage() {
 
         {showExtra && (
           <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {(() => {
-              const defaultItems = [
-                {
-                  id: "extra-1",
-                  title: "Skin Care Video 1",
-                  category: "Skin Care",
-                  src: "/assets/skin_videos/1.mp4",
-                },
-                {
-                  id: "extra-2",
-                  title: "Skin Care Video 2",
-                  category: "Skin Care",
-                  src: "/assets/skin_videos/2.mp4",
-                },
-                {
-                  id: "extra-3",
-                  title: "Skin Care Video 3",
-                  category: "Skin Care",
-                  src: "/assets/skin_videos/3.mp4",
-                },
-                {
-                  id: "extra-4",
-                  title: "Skin Care Video 4",
-                  category: "Skin Care",
-                  src: "/assets/skin_videos/4.mp4",
-                },
-                {
-                  id: "extra-5",
-                  title: "Skin Care Video 5",
-                  category: "Skin Care",
-                  src: "/assets/skin_videos/5.mp4",
-                },
-                {
-                  id: "extra-6",
-                  title: "Skin Care Video 6",
-                  category: "Skin Care",
-                  src: "/assets/skin_videos/6.mp4",
-                },
-                {
-                  id: "extra-7",
-                  title: "Skin Care Video 7",
-                  category: "Skin Care",
-                  src: "/assets/skin_videos/7.mp4",
-                },
-                {
-                  id: "extra-8",
-                  title: "Skin Care Video 8",
-                  category: "Skin Care",
-                  src: "/assets/skin_videos/8.mp4",
-                },
-              ];
-              if (dbExtraItems.length === 0) return defaultItems;
-              const existingSrcs = new Set(dbExtraItems.map((item) => item.src));
-              const fallback = defaultItems.filter((item) => !existingSrcs.has(item.src));
-              return [...dbExtraItems, ...fallback];
-            })().map((item) => (
-              <div
-                key={item.id}
-                className="flex h-full flex-col rounded-xl border border-[#363636] bg-[#181818] p-4 transition-all duration-200 hover:border-[#1769E0]"
-              >
-                <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-semibold text-white">{item.title}</h3>
-                  <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-[#E83E8C]">
-                    {item.category || "Extra"}
-                  </span>
-                </div>
-                <div
-                  className="relative mt-3 flex-1 overflow-hidden rounded-lg border border-[#363636] bg-[#0A0A0A]"
-                  style={{ minHeight: 180 }}
-                >
-                  <video
-                    className="h-full w-full object-cover"
-                    preload="metadata"
-                    muted={extraMuted[item.id] ?? true}
-                    loop
-                    playsInline
-                    onMouseEnter={(e) => e.currentTarget.play().catch(() => {})}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.pause();
-                      e.currentTarget.currentTime = 0;
-                    }}
-                  >
-                    <source src={item.src} type="video/mp4" />
-                  </video>
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      toggleExtraMuted(item.id);
-                    }}
-                    className="absolute bottom-2 right-2 flex size-8 items-center justify-center rounded-md bg-black/60 text-white backdrop-blur-sm transition-colors hover:bg-black/80"
-                    aria-label={(extraMuted[item.id] ?? true) ? "Unmute" : "Mute"}
-                  >
-                    {(extraMuted[item.id] ?? true) ? (
-                      <VolumeX className="size-4" />
-                    ) : (
-                      <Volume2 className="size-4" />
-                    )}
-                  </button>
-                </div>
-                <p className="mt-3 text-[11px] text-[#92928D]">Preview only — download disabled</p>
-              </div>
-            ))}
+             {(() => {
+               const defaultItems = [
+                 {
+                   id: "extra-1",
+                   title: "Skin Care Video 1",
+                   category: "Skin Care",
+                   src: "/assets/skin_videos/1.mp4",
+                   preview: "/assets/skin_videos/1_t.jpeg",
+                 },
+                 {
+                   id: "extra-2",
+                   title: "Skin Care Video 2",
+                   category: "Skin Care",
+                   src: "/assets/skin_videos/2.mp4",
+                   preview: "/assets/skin_videos/2_t.jpeg",
+                 },
+                 {
+                   id: "extra-3",
+                   title: "Skin Care Video 3",
+                   category: "Skin Care",
+                   src: "/assets/skin_videos/3.mp4",
+                   preview: "/assets/skin_videos/3_t.jpeg",
+                 },
+                 {
+                   id: "extra-4",
+                   title: "Skin Care Video 4",
+                   category: "Skin Care",
+                   src: "/assets/skin_videos/4.mp4",
+                   preview: "/assets/skin_videos/4_t.jpeg",
+                 },
+                 {
+                   id: "extra-5",
+                   title: "Skin Care Video 5",
+                   category: "Skin Care",
+                   src: "/assets/skin_videos/5.mp4",
+                   preview: "/assets/skin_videos/5_t.jpeg",
+                 },
+                 {
+                   id: "extra-6",
+                   title: "Skin Care Video 6",
+                   category: "Skin Care",
+                   src: "/assets/skin_videos/6.mp4",
+                   preview: "/assets/skin_videos/6_t.jpeg",
+                 },
+                 {
+                   id: "extra-7",
+                   title: "Skin Care Video 7",
+                   category: "Skin Care",
+                   src: "/assets/skin_videos/7.mp4",
+                   preview: "/assets/skin_videos/7_t.jpeg",
+                 },
+                 {
+                   id: "extra-8",
+                   title: "Skin Care Video 8",
+                   category: "Skin Care",
+                   src: "/assets/skin_videos/8.mp4",
+                   preview: "/assets/skin_videos/8_t.jpeg",
+                 },
+               ];
+               if (dbExtraItems.length === 0) return defaultItems;
+               const existingSrcs = new Set(dbExtraItems.map((item) => item.src));
+               const fallback = defaultItems.filter((item) => !existingSrcs.has(item.src));
+               return [
+                 ...dbExtraItems.map((item) => ({
+                   ...item,
+                   preview: getSkinPreview(item.src),
+                   category: item.category || "Extra",
+                 })),
+                 ...fallback,
+               ];
+             })().map((item) => {
+               const isOpen = openExtraId === item.id;
+               const isPlaying = extraPlayingStates[item.id] ?? false;
+               const isEnded = extraEndedStates[item.id] ?? false;
+               const isMuted = extraMutedValues[item.id] ?? true;
+               const hasError = extraErrorStates[item.id] ?? false;
+
+               const toggleExtraPlay = () => {
+                 const video = document.querySelector(`[data-extra-video-id="${item.id}"] video`) as HTMLVideoElement | null;
+                 if (!video) return;
+
+                 if (isEnded) {
+                   video.currentTime = 0;
+                   setExtraEndedStates((prev) => ({ ...prev, [item.id]: false }));
+                 }
+
+                 if (video.paused) {
+                   video.play().then(() => {
+                     setExtraPlayingStates((prev) => ({ ...prev, [item.id]: true }));
+                   }).catch(() => {
+                     setExtraPlayingStates((prev) => ({ ...prev, [item.id]: false }));
+                   });
+                 } else {
+                   video.pause();
+                   setExtraPlayingStates((prev) => ({ ...prev, [item.id]: false }));
+                 }
+               };
+
+               const toggleExtraMute = () => {
+                 setExtraMutedValues((prev) => ({ ...prev, [item.id]: !prev[item.id] }));
+               };
+
+               const handleExtraEnded = () => {
+                 setExtraPlayingStates((prev) => ({ ...prev, [item.id]: false }));
+                 setExtraEndedStates((prev) => ({ ...prev, [item.id]: true }));
+               };
+
+               const handleExtraLoadedData = () => {
+                 const video = document.querySelector(`[data-extra-video-id="${item.id}"] video`) as HTMLVideoElement | null;
+                 if (!video || !isOpen) return;
+                 video.play().then(() => {
+                   setExtraPlayingStates((prev) => ({ ...prev, [item.id]: true }));
+                 }).catch(() => {
+                   setExtraPlayingStates((prev) => ({ ...prev, [item.id]: false }));
+                 });
+               };
+
+               const closeExtra = () => {
+                 const video = document.querySelector(`[data-extra-video-id="${item.id}"] video`) as HTMLVideoElement | null;
+                 if (video) video.pause();
+                 setOpenExtraId(null);
+                 setExtraPlayingStates((prev) => ({ ...prev, [item.id]: false }));
+                 setExtraEndedStates((prev) => ({ ...prev, [item.id]: false }));
+               };
+
+               return (
+                 <div
+                   key={item.id}
+                   data-extra-video-id={item.id}
+                   className="flex h-full flex-col rounded-xl border border-[#363636] bg-[#181818] p-4 transition-all duration-200 hover:border-[#1769E0]"
+                 >
+                   <div className="flex items-center justify-between">
+                     <h3 className="text-sm font-semibold text-white">{item.title}</h3>
+                     <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-[#E83E8C]">
+                       {item.category || "Extra"}
+                     </span>
+                   </div>
+                   <div
+                     className="relative mt-3 flex-1 overflow-hidden rounded-lg border border-[#363636] bg-[#0A0A0A]"
+                     style={{ minHeight: 180 }}
+                   >
+                     {isOpen ? (
+                       hasError ? (
+                         <div className="flex h-full w-full flex-col items-center justify-center gap-3">
+                           <p className="text-[10px] text-[#92928D]">Video couldn't be loaded.</p>
+                           <div className="flex gap-2">
+                             <button
+                               type="button"
+                               onClick={() => setExtraErrorStates((prev) => ({ ...prev, [item.id]: false }))}
+                               className="rounded-md bg-[#1769E0] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.15em] text-white"
+                             >
+                               Try Again
+                             </button>
+                             <button
+                               type="button"
+                               onClick={closeExtra}
+                               className="rounded-md border border-[#363636] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.15em] text-[#C7C7C3]"
+                             >
+                               Close
+                             </button>
+                           </div>
+                         </div>
+                       ) : (
+                         <>
+                           <video
+                             className="h-full w-full object-cover"
+                             preload="metadata"
+                             muted={isMuted}
+                             loop={false}
+                             playsInline
+                             autoPlay={false}
+                             controls={false}
+                             onContextMenu={(e) => e.preventDefault()}
+                             onEnded={handleExtraEnded}
+                             onError={() => setExtraErrorStates((prev) => ({ ...prev, [item.id]: true }))}
+                             onLoadedData={handleExtraLoadedData}
+                           >
+                             <source src={item.src} type="video/mp4" />
+                           </video>
+                           <div className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-2 bg-gradient-to-t from-black/80 via-black/40 to-transparent px-2 py-2">
+                             <button
+                               type="button"
+                               onClick={toggleExtraPlay}
+                               className="flex size-8 items-center justify-center rounded-md bg-black/60 text-white backdrop-blur-sm transition-colors hover:bg-black/80"
+                               aria-label={isPlaying ? "Pause" : "Play"}
+                             >
+                               {isPlaying ? <Pause className="size-4" /> : <Play className="size-4" />}
+                             </button>
+                             <button
+                               type="button"
+                               onClick={toggleExtraMute}
+                               className="flex size-8 items-center justify-center rounded-md bg-black/60 text-white backdrop-blur-sm transition-colors hover:bg-black/80"
+                               aria-label={isMuted ? "Unmute" : "Mute"}
+                             >
+                               {isMuted ? <VolumeX className="size-4" /> : <Volume2 className="size-4" />}
+                             </button>
+                             <button
+                               type="button"
+                               onClick={closeExtra}
+                               className="flex size-8 items-center justify-center rounded-md bg-black/60 text-white backdrop-blur-sm transition-colors hover:bg-black/80"
+                               aria-label="Close"
+                             >
+                               <X className="size-4" />
+                             </button>
+                           </div>
+                         </>
+                       )
+                     ) : (
+                       <>
+                         <img
+                           src={item.preview}
+                           alt={item.title}
+                           className="h-full w-full object-cover"
+                           loading="lazy"
+                           decoding="async"
+                         />
+                         <div className="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-300 hover:opacity-100">
+                           <button
+                             type="button"
+                             onClick={() => {
+                               setOpenExtraId(item.id);
+                               setExtraErrorStates((prev) => ({ ...prev, [item.id]: false }));
+                             }}
+                             className="rounded-md bg-black/70 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.15em] text-white backdrop-blur-sm transition-colors hover:bg-black/90"
+                           >
+                             OPEN
+                           </button>
+                         </div>
+                       </>
+                     )}
+                   </div>
+                   <p className="mt-3 text-[11px] text-[#92928D]">Preview only — download disabled</p>
+                 </div>
+               );
+             })}
           </div>
         )}
       </section>
