@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect } from "react";
-import { Volume2, VolumeX, Play, Pause } from "lucide-react";
+import { Volume2, VolumeX, Play, Pause, X } from "lucide-react";
 
 interface SkinVideo {
   title: string;
@@ -64,6 +64,7 @@ export function SkinVideoCard({ video }: SkinVideoCardProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
   const [isEnded, setIsEnded] = useState(false);
+  const [videoError, setVideoError] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mountedRef = useRef(true);
@@ -112,7 +113,7 @@ export function SkinVideoCard({ video }: SkinVideoCardProps) {
   };
 
   const handleVideoError = () => {
-    setIsOpen(false);
+    setVideoError(true);
   };
 
   const handleLoadedData = () => {
@@ -201,22 +202,69 @@ export function SkinVideoCard({ video }: SkinVideoCardProps) {
 
       {isOpen && (
         <div className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-2 bg-gradient-to-t from-black/80 via-black/40 to-transparent px-2 py-2">
-          <button
-            type="button"
-            onClick={togglePlay}
-            className="flex size-8 items-center justify-center rounded-md bg-black/60 text-white backdrop-blur-sm transition-colors hover:bg-black/80"
-            aria-label={isPlaying ? "Pause" : "Play"}
-          >
-            {isPlaying ? <Pause className="size-4" /> : <Play className="size-4" />}
-          </button>
-          <button
-            type="button"
-            onClick={toggleMute}
-            className="flex size-8 items-center justify-center rounded-md bg-black/60 text-white backdrop-blur-sm transition-colors hover:bg-black/80"
-            aria-label={isMuted ? "Unmute" : "Mute"}
-          >
-            {isMuted ? <VolumeX className="size-4" /> : <Volume2 className="size-4" />}
-          </button>
+          {videoError ? (
+            <div className="flex w-full items-center justify-between gap-2">
+              <p className="text-[10px] text-[#92928D]">Video couldn't be loaded.</p>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setVideoError(false)}
+                  className="rounded-md bg-[#1769E0] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.15em] text-white"
+                >
+                  Try Again
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    const v = videoRef.current;
+                    if (v) v.pause();
+                    setIsOpen(false);
+                    setVideoError(false);
+                    setIsPlaying(false);
+                    setIsEnded(false);
+                  }}
+                  className="rounded-md border border-[#363636] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.15em] text-[#C7C7C3]"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          ) : (
+            <>
+              <button
+                type="button"
+                onClick={togglePlay}
+                className="flex size-8 items-center justify-center rounded-md bg-black/60 text-white backdrop-blur-sm transition-colors hover:bg-black/80"
+                aria-label={isPlaying ? "Pause" : "Play"}
+              >
+                {isPlaying ? <Pause className="size-4" /> : <Play className="size-4" />}
+              </button>
+              <button
+                type="button"
+                onClick={toggleMute}
+                className="flex size-8 items-center justify-center rounded-md bg-black/60 text-white backdrop-blur-sm transition-colors hover:bg-black/80"
+                aria-label={isMuted ? "Unmute" : "Mute"}
+              >
+                {isMuted ? <VolumeX className="size-4" /> : <Volume2 className="size-4" />}
+              </button>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const v = videoRef.current;
+                  if (v) v.pause();
+                  setIsOpen(false);
+                  setIsPlaying(false);
+                  setIsEnded(false);
+                }}
+                className="flex size-8 items-center justify-center rounded-md bg-black/60 text-white backdrop-blur-sm transition-colors hover:bg-black/80"
+                aria-label="Close"
+              >
+                <X className="size-4" />
+              </button>
+            </>
+          )}
         </div>
       )}
 
