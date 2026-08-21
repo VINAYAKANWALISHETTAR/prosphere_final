@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, Volume2, VolumeX } from "lucide-react";
+import { ArrowRight, Volume2, VolumeX, Play, Pause, X } from "lucide-react";
 import { digicrystalDemos, digicrystalGroups } from "@/data/digicrystal";
 import { brandAssets, DIGICRYSTAL_TAGLINE } from "@/lib/brand";
 import { SectionHeading } from "@/components/site/SectionHeading";
@@ -254,7 +254,15 @@ function MediaPreview({ item }: { item: (typeof showcaseItems)[number] }) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [videoError, setVideoError] = useState(false);
   const [isVideoOpen, setIsVideoOpen] = useState(false);
+  const mountedRef = useRef(true);
   const imageIntervalRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
 
   useEffect(() => {
     setVideoError(false);
@@ -296,8 +304,10 @@ function MediaPreview({ item }: { item: (typeof showcaseItems)[number] }) {
         if (!entry.isIntersecting) {
           video.pause();
           video.muted = true;
-          setIsPlaying(false);
-          setMuted(true);
+          if (mountedRef.current) {
+            setIsPlaying(false);
+            setMuted(true);
+          }
         }
       },
       { threshold: 0.25 },
@@ -320,10 +330,11 @@ function MediaPreview({ item }: { item: (typeof showcaseItems)[number] }) {
     }
 
     if (video.paused) {
-      video
-        .play()
-        .then(() => setIsPlaying(true))
-        .catch(() => {});
+      video.play().then(() => {
+        if (mountedRef.current) setIsPlaying(true);
+      }).catch(() => {
+        if (mountedRef.current) setIsPlaying(false);
+      });
     } else {
       video.pause();
       setIsPlaying(false);
@@ -345,6 +356,16 @@ function MediaPreview({ item }: { item: (typeof showcaseItems)[number] }) {
   const handleEnded = () => {
     setIsPlaying(false);
     setIsEnded(true);
+  };
+
+  const handleLoadedData = () => {
+    const video = videoRef.current;
+    if (!video || !isVideoOpen) return;
+    video.play().then(() => {
+      if (mountedRef.current) setIsPlaying(true);
+    }).catch(() => {
+      if (mountedRef.current) setIsPlaying(false);
+    });
   };
 
   const isProsphereAdVideo = item.type === "video" && !!item.preview;
@@ -423,47 +444,99 @@ function MediaPreview({ item }: { item: (typeof showcaseItems)[number] }) {
               {muted ? <VolumeX className="size-4" /> : <Volume2 className="size-4" />}
             </button>
           </div>
-        ) : item.type === "video" && !videoError && isProsphereAdVideo && isVideoOpen ? (
+        ) : item.type === "video" && isProsphereAdVideo && isVideoOpen ? (
           <div className="relative h-full w-full">
-            <video
-              ref={videoRef}
-              className="h-full w-full object-cover"
-              preload="metadata"
-              muted={muted}
-              loop={false}
-              playsInline
-              autoPlay
-              controls={false}
-              onContextMenu={(e) => e.preventDefault()}
-              onEnded={handleEnded}
-              onError={handleVideoError}
-            >
-              <source src={item.src} type="video/mp4" />
-            </video>
-            <div className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-2 bg-gradient-to-t from-black/80 via-black/40 to-transparent px-2 py-2">
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  togglePlay();
-                }}
-                className="flex size-8 items-center justify-center rounded-md bg-black/60 text-white backdrop-blur-sm transition-colors hover:bg-black/80"
-                aria-label={isPlaying ? "Pause" : "Play"}
-              >
-                {isPlaying ? <Pause className="size-4" /> : <Play className="size-4" />}
-              </button>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  toggleMuted();
-                }}
-                className="flex size-8 items-center justify-center rounded-md bg-black/60 text-white backdrop-blur-sm transition-colors hover:bg-black/80"
-                aria-label={muted ? "Unmute" : "Mute"}
-              >
-                {muted ? <VolumeX className="size-4" /> : <Volume2 className="size-4" />}
-              </button>
-            </div>
+            {videoError ? (
+              <div className="flex h-full w-full flex-col items-center justify-center gap-3 bg-[#0A0A0A]">
+                <p className="text-[10px] text-[#92928D]">Video couldn't be loaded.</p>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setVideoError(false)}
+                    className="rounded-md bg-[#1769E0] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.15em] text-white"
+                  >
+                    Try Again
+                  </button>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      const video = videoRef.current;
+                      if (video) {
+                        video.pause();
+                      }
+                      setIsVideoOpen(false);
+                      setVideoError(false);
+                      setIsPlaying(false);
+                      setIsEnded(false);
+                    }}
+                    className="rounded-md border border-[#363636] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.15em] text-[#C7C7C3]"
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <>
+                <video
+                  ref={videoRef}
+                  className="h-full w-full object-cover"
+                  preload="metadata"
+                  muted={muted}
+                  loop={false}
+                  playsInline
+                  autoPlay={false}
+                  controls={false}
+                  onContextMenu={(e) => e.preventDefault()}
+                  onEnded={handleEnded}
+                  onError={handleVideoError}
+                  onLoadedData={handleLoadedData}
+                >
+                  <source src={item.src} type="video/mp4" />
+                </video>
+                <div className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-2 bg-gradient-to-t from-black/80 via-black/40 to-transparent px-2 py-2">
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      togglePlay();
+                    }}
+                    className="flex size-8 items-center justify-center rounded-md bg-black/60 text-white backdrop-blur-sm transition-colors hover:bg-black/80"
+                    aria-label={isPlaying ? "Pause" : "Play"}
+                  >
+                    {isPlaying ? <Pause className="size-4" /> : <Play className="size-4" />}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleMuted();
+                    }}
+                    className="flex size-8 items-center justify-center rounded-md bg-black/60 text-white backdrop-blur-sm transition-colors hover:bg-black/80"
+                    aria-label={muted ? "Unmute" : "Mute"}
+                  >
+                    {muted ? <VolumeX className="size-4" /> : <Volume2 className="size-4" />}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      const video = videoRef.current;
+                      if (video) {
+                        video.pause();
+                      }
+                      setIsVideoOpen(false);
+                      setIsPlaying(false);
+                      setIsEnded(false);
+                    }}
+                    className="flex size-8 items-center justify-center rounded-md bg-black/60 text-white backdrop-blur-sm transition-colors hover:bg-black/80"
+                    aria-label="Close"
+                  >
+                    <X className="size-4" />
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         ) : item.type === "video" && videoError ? (
           <div className="flex h-full w-full items-center justify-center">
