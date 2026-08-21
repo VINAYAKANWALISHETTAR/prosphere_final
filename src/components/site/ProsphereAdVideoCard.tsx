@@ -71,6 +71,14 @@ export function ProsphereAdCard({ video }: ProsphereAdCardProps): ReactNode {
   const [isEnded, setIsEnded] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const mountedRef = useRef(true);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
 
   const togglePlay = () => {
     const v = videoRef.current;
@@ -83,8 +91,12 @@ export function ProsphereAdCard({ video }: ProsphereAdCardProps): ReactNode {
 
     if (v.paused) {
       v.play()
-        .then(() => setIsPlaying(true))
-        .catch(() => {});
+        .then(() => {
+          if (mountedRef.current) setIsPlaying(true);
+        })
+        .catch(() => {
+          if (mountedRef.current) setIsPlaying(false);
+        });
     } else {
       v.pause();
       setIsPlaying(false);
@@ -104,6 +116,22 @@ export function ProsphereAdCard({ video }: ProsphereAdCardProps): ReactNode {
     setIsEnded(true);
   };
 
+  const handleVideoError = () => {
+    setIsOpen(false);
+  };
+
+  const handleLoadedData = () => {
+    const v = videoRef.current;
+    if (!v || !isOpen) return;
+    v.play()
+      .then(() => {
+        if (mountedRef.current) setIsPlaying(true);
+      })
+      .catch(() => {
+        if (mountedRef.current) setIsPlaying(false);
+      });
+  };
+
   useEffect(() => {
     if (!isOpen) return;
 
@@ -116,8 +144,10 @@ export function ProsphereAdCard({ video }: ProsphereAdCardProps): ReactNode {
         if (!entry.isIntersecting) {
           video.pause();
           video.muted = true;
-          setIsPlaying(false);
-          setIsMuted(true);
+          if (mountedRef.current) {
+            setIsPlaying(false);
+            setIsMuted(true);
+          }
         }
       },
       { threshold: 0.25 },
@@ -129,18 +159,6 @@ export function ProsphereAdCard({ video }: ProsphereAdCardProps): ReactNode {
       observer.disconnect();
     };
   }, [isOpen]);
-
-  const handleVideoError = () => {
-    setIsOpen(false);
-  };
-
-  const handleLoadedData = () => {
-    const video = videoRef.current;
-    if (!video || !isOpen) return;
-    video.play().catch(() => {
-      setIsPlaying(false);
-    });
-  };
 
   return (
     <div
@@ -155,7 +173,7 @@ export function ProsphereAdCard({ video }: ProsphereAdCardProps): ReactNode {
           muted={isMuted}
           loop={false}
           playsInline
-          autoPlay
+          autoPlay={false}
           controls={false}
           onContextMenu={(e) => e.preventDefault()}
           onEnded={handleEnded}
@@ -187,26 +205,24 @@ export function ProsphereAdCard({ video }: ProsphereAdCardProps): ReactNode {
       )}
 
       {isOpen && (
-        <>
-          <div className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-2 bg-gradient-to-t from-black/80 via-black/40 to-transparent px-2 py-2">
-            <button
-              type="button"
-              onClick={togglePlay}
-              className="flex size-8 items-center justify-center rounded-md bg-black/60 text-white backdrop-blur-sm transition-colors hover:bg-black/80"
-              aria-label={isPlaying ? "Pause" : "Play"}
-            >
-              {isPlaying ? <Pause className="size-4" /> : <Play className="size-4" />}
-            </button>
-            <button
-              type="button"
-              onClick={toggleMute}
-              className="flex size-8 items-center justify-center rounded-md bg-black/60 text-white backdrop-blur-sm transition-colors hover:bg-black/80"
-              aria-label={isMuted ? "Unmute" : "Mute"}
-            >
-              {isMuted ? <VolumeX className="size-4" /> : <Volume2 className="size-4" />}
-            </button>
-          </div>
-        </>
+        <div className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-2 bg-gradient-to-t from-black/80 via-black/40 to-transparent px-2 py-2">
+          <button
+            type="button"
+            onClick={togglePlay}
+            className="flex size-8 items-center justify-center rounded-md bg-black/60 text-white backdrop-blur-sm transition-colors hover:bg-black/80"
+            aria-label={isPlaying ? "Pause" : "Play"}
+          >
+            {isPlaying ? <Pause className="size-4" /> : <Play className="size-4" />}
+          </button>
+          <button
+            type="button"
+            onClick={toggleMute}
+            className="flex size-8 items-center justify-center rounded-md bg-black/60 text-white backdrop-blur-sm transition-colors hover:bg-black/80"
+            aria-label={isMuted ? "Unmute" : "Mute"}
+          >
+            {isMuted ? <VolumeX className="size-4" /> : <Volume2 className="size-4" />}
+          </button>
+        </div>
       )}
 
       <span className="absolute bottom-1 left-1 rounded bg-black/60 px-1.5 py-0.5 text-[9px] font-medium text-white">
