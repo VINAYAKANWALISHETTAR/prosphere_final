@@ -130,6 +130,18 @@ export function ProsphereAdCard({ video }: ProsphereAdCardProps): ReactNode {
     };
   }, [isOpen]);
 
+  const handleVideoError = () => {
+    setIsOpen(false);
+  };
+
+  const handleLoadedData = () => {
+    const video = videoRef.current;
+    if (!video || !isOpen) return;
+    video.play().catch(() => {
+      setIsPlaying(false);
+    });
+  };
+
   return (
     <div
       ref={containerRef}
@@ -147,6 +159,8 @@ export function ProsphereAdCard({ video }: ProsphereAdCardProps): ReactNode {
           controls={false}
           onContextMenu={(e) => e.preventDefault()}
           onEnded={handleEnded}
+          onError={handleVideoError}
+          onLoadedData={handleLoadedData}
         >
           <source src={video.video} type="video/mp4" />
         </video>

@@ -499,14 +499,51 @@ function HomePage() {
                           <ProsphereAdCard key={video.video} video={video} />
                         ))}
                         {[
-                          { title: "Skin 1", src: "/assets/skin_videos/1.mp4" },
-                          { title: "Skin 2", src: "/assets/skin_videos/2.mp4" },
-                          { title: "Skin 3", src: "/assets/skin_videos/3.mp4" },
-                          { title: "Skin 4", src: "/assets/skin_videos/4.mp4" },
-                          { title: "Skin 5", src: "/assets/skin_videos/5.mp4" },
-                          { title: "Skin 6", src: "/assets/skin_videos/6.mp4" },
-                          { title: "Skin 7", src: "/assets/skin_videos/7.mp4" },
-                          { title: "Skin 8", src: "/assets/skin_videos/8.mp4" },
+                          {
+                            title: "Skin 1",
+                            src: "/assets/skin_videos/1.mp4",
+                            preview: "/assets/skin_videos/1_t.jpeg",
+                          },
+                          {
+                            title: "Skin 2",
+                            src: "/assets/skin_videos/2.mp4",
+                            preview: "/assets/skin_videos/2_t.jpeg",
+                          },
+                          {
+                            title: "Skin 3",
+                            src: "/assets/skin_videos/3.mp4",
+                            preview: "/assets/skin_videos/3_t.jpeg",
+                          },
+                          {
+                            title: "Skin 4",
+                            src: "/assets/skin_videos/4.mp4",
+                            preview: "/assets/skin_videos/4_t.jpeg",
+                          },
+                          {
+                            title: "Skin 5",
+                            src: "/assets/skin_videos/5.mp4",
+                            preview: "/assets/skin_videos/5_t.jpeg",
+                          },
+                          {
+                            title: "Skin 6",
+                            src: "/assets/skin_videos/6.mp4",
+                            preview: "/assets/skin_videos/6_t.jpeg",
+                          },
+                          {
+                            title: "Skin 7",
+                            src: "/assets/skin_videos/7.mp4",
+                            preview: "/assets/skin_videos/7_t.jpeg",
+                          },
+                          {
+                            title: "Skin 8",
+                            src: "/assets/skin_videos/8.mp4",
+                            preview: "/assets/skin_videos/8_t.jpeg",
+                          },
+                          {
+                            title: "Skin Image",
+                            src: "/assets/skin_videos/skin_image.webp",
+                            preview: "/assets/skin_videos/skin_image.webp",
+                          },
                         ].map((video) => (
                           <div
                             key={video.src}
@@ -518,6 +555,7 @@ function HomePage() {
                               muted
                               loop
                               playsInline
+                              poster={video.preview}
                             >
                               <source src={video.src} type="video/mp4" />
                             </video>
